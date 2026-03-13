@@ -14,9 +14,13 @@ import streamlit as st
 # =========================================================
 APP_TITLE = "CRAWS Load Shape Explorer"
 
-KWH_FILE = Path("Inputs/CRAWS_kWh_LoadShape_updated.csv")
-THERM_FILE = Path("Inputs/CRAWS_Therm_LoadShape_updated.csv")
-BLDG_MAP_FILE = Path("Inputs/BldgType_map.xlsx")
+#KWH_FILE = Path("Inputs/CRAWS_kWh_LoadShape_updated.csv")
+#THERM_FILE = Path("Inputs/CRAWS_Therm_LoadShape_updated.csv")
+#BLDG_MAP_FILE = Path("Inputs/BldgType_map.xlsx")
+
+KWH_FILE = "https://storage.googleapis.com/craws_loadshape_inputs/CRAWS_kWh_LoadShape_updated.csv"
+THERM_FILE = "https://storage.googleapis.com/craws_loadshape_inputs/CRAWS_Therm_LoadShape_updated.csv"
+BLDG_MAP_FILE = "https://storage.googleapis.com/craws_loadshape_inputs/BldgType_map.xlsx"
 
 HOUR_COL = "Hour"
 
@@ -25,8 +29,8 @@ HOUR_COL = "Hour"
 # Loaders
 # =========================================================
 @st.cache_data(show_spinner=False)
-def load_bldg_map(path: Path) -> dict[str, str]:
-    df = pd.read_excel(path, engine="openpyxl")
+def load_bldg_map(path_or_url: str) -> dict[str, str]:
+    df = pd.read_excel(path_or_url, engine="openpyxl")
     df.columns = [str(c).strip() for c in df.columns]
 
     if "Code" not in df.columns or "Building Type" not in df.columns:
@@ -39,13 +43,9 @@ def load_bldg_map(path: Path) -> dict[str, str]:
 
 
 @st.cache_data(show_spinner=False)
-def load_loadshape_csv(path: Path) -> pd.DataFrame:
-    df = pd.read_csv(path)
+def load_loadshape_csv(path_or_url: str) -> pd.DataFrame:
+    df = pd.read_csv(path_or_url)
     df.columns = [str(c).strip() for c in df.columns]
-
-    if HOUR_COL not in df.columns:
-        raise ValueError(f'{path.name} must contain a "{HOUR_COL}" column.')
-
     return df
 
 
@@ -237,17 +237,17 @@ def plot_consumption_by_building_type(plot_df: pd.DataFrame, metric_label: str, 
 st.set_page_config(page_title=APP_TITLE, layout="wide")
 st.title(APP_TITLE)
 
-if not KWH_FILE.exists():
-    st.error(f"Missing file: {KWH_FILE}")
-    st.stop()
+#if not KWH_FILE.exists():
+#    st.error(f"Missing file: {KWH_FILE}")
+#    st.stop()
 
-if not THERM_FILE.exists():
-    st.error(f"Missing file: {THERM_FILE}")
-    st.stop()
+#if not THERM_FILE.exists():
+#    st.error(f"Missing file: {THERM_FILE}")
+#    st.stop()
 
-if not BLDG_MAP_FILE.exists():
-    st.error(f"Missing file: {BLDG_MAP_FILE}")
-    st.stop()
+#if not BLDG_MAP_FILE.exists():
+#    st.error(f"Missing file: {BLDG_MAP_FILE}")
+#    st.stop()
 
 bldg_map = load_bldg_map(BLDG_MAP_FILE)
 df_kwh = load_loadshape_csv(KWH_FILE)
